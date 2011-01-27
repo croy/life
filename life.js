@@ -1,8 +1,11 @@
 $(document).ready(function(){
-    function game(rows,cols,  rule){
+
+    //internal representation of a game of life.
+    function game(rows,cols,rule){
 	var game = {};
 	var tiles = createBoard(rows, cols);
-
+	
+	//initialize the board to the number of tiles requested.
 	function createBoard(rows, cols){
 	    var rowIndex, colIndex, currentId, tiles = [];
 	    for(rowIndex = 0; rowIndex < rows; rowIndex++){
@@ -14,6 +17,7 @@ $(document).ready(function(){
 	    return tiles;
 	}
 	
+	//advances the game to the next state, using the rule provided when initializing
 	function advanceState(){
 	    var rowIndex, 
 	    colIndex, 
@@ -39,6 +43,7 @@ $(document).ready(function(){
 	    return game;
 	}
     
+	//Change a tile from alive to dead
 	function toggle(row, col){
 	    var tile = tiles[row][col];
 	    tile.previous = tile.alive;
@@ -46,24 +51,27 @@ $(document).ready(function(){
 	    return game;
 	}
 
+	//Check whether a tile is currently alive
 	function alive(row, col){
 	    return tiles[row][col].alive;
 	}
 
+	//Check whether a tile has changed status between the last game state and the current
 	function changed(row, col){
 	    return tiles[row][col].alive !== tiles[row][col].previous;
 	}
 
+	//provide public functions and data
 	game.advanceState = advanceState;
 	game.toggle = toggle;
 	game.cols = cols;
 	game.rows = rows;
 	game.alive = alive;
 	game.changed = changed;
-
 	return game;
     }
 
+    //create an html visualization of a gameboard
     function createUI(container, game, width){
 	var rowIndex, colIndex, currentId, currentElement;
 	
@@ -95,7 +103,8 @@ $(document).ready(function(){
 	}
     }
 
-    function render(container, game, width)
+    //render the current gamestate.
+    function render(container, game)
     {
 	var rowIndex, colIndex;
 	for (rowIndex = 0; rowIndex < game.rows; rowIndex++){
@@ -111,6 +120,7 @@ $(document).ready(function(){
 	}
     }
 
+    //Define the traditional rule of Conway's game of life (B3/S32)
     function traditionalRule(currentState, surroundingValues){
 	var key, sum=0;
 	for(key in surroundingValues){
@@ -121,10 +131,12 @@ $(document).ready(function(){
 
 
 
-    var game = game(100, 100, traditionalRule);
-    var board = $(".gameboard"),maxCols = 100;
-    var width = board.innerWidth()/maxCols;
+    var game = game(100, 100, traditionalRule),
+        board = $(".gameboard"),
+        maxCols = 100,
+        width = board.innerWidth()/maxCols;
+
     createUI(board, game, width);
-    $('button').click(function(){ render(board, game.advanceState(), width) });
+    $('button').click(function(){ render(board, game.advanceState()) });
 
 });
