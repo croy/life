@@ -1,18 +1,26 @@
 .gameboard {
     width: 800px;
-    height: 800px;
-    position: absolute;
     border-width: 1px;
     border:solid;
+    margin: 0;
+    padding: 0;
 }
 
 .selected.alive {
-    background: green;
+    background: gray;
+    opacity: 1;
 }
 .selected {
-    background: grey;
+    background: black;
+    opacity: .2;
 }
 
 .alive {
     background: black;
+}
+
+.tile {
+    display: inline-block;
+    width: 16;
+    height: 16;
 }

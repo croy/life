@@ -16,7 +16,19 @@ $(document).ready(function(){
 	    }
 	    return tiles;
 	}
-	
+
+	function adjacentTiles(row, col){
+	    return {
+		 topLeft : (row > 0 && col > 0) ? tiles[row-1][col-1].alive : undefined,
+		 top : (row > 0) ? tiles[row-1][col].alive : undefined,
+		 topRight : (row > 0 && col < cols-1) ? tiles[row-1][col+1].alive : undefined,
+		 left : (col > 0) ? tiles[row][col-1].alive : undefined,
+		 right : (col < cols-1) ? tiles[row][col+1].alive : undefined,
+		 bottomLeft : (row < rows-1 && col > 0) ? tiles[row+1][col-1].alive : undefined,
+		 bottom : (row < rows-1) ? tiles[row+1][col].alive : undefined,
+		 bottomRight : (row < rows-1 && col < cols-1) ? tiles[row+1][col+1].alive : undefined
+	    };
+	}	
 	//advances the game to the next state, using the rule provided when initializing
 	function advanceState(){
 	    var rowIndex, 
@@ -28,15 +40,8 @@ $(document).ready(function(){
 		    newTiles[rowIndex][colIndex] = {
 			previous : tiles[rowIndex][colIndex].alive,
 			alive : rule(tiles[rowIndex][colIndex].alive,
-				     {
-					 topLeft : (rowIndex > 0 && colIndex > 0) ? tiles[rowIndex-1][colIndex-1].alive : undefined,
-					 top : (rowIndex > 0) ? tiles[rowIndex-1][colIndex].alive : undefined,
-					 topRight : (rowIndex > 0 && colIndex < cols-1) ? tiles[rowIndex-1][colIndex+1].alive : undefined,
-					 left : (colIndex > 0) ? tiles[rowIndex][colIndex-1].alive : undefined,
-					 right : (colIndex < cols-1) ? tiles[rowIndex][colIndex+1].alive : undefined,
-					 bottomLeft : (rowIndex < rows-1 && colIndex > 0) ? tiles[rowIndex+1][colIndex-1].alive : undefined,
-					 bottom : (rowIndex < rows-1) ? tiles[rowIndex+1][colIndex].alive : undefined,
-					 bottomRight : (rowIndex < rows-1 && colIndex < cols-1) ? tiles[rowIndex+1][colIndex+1].alive : undefined})};
+				     adjacentTiles(rowIndex, colIndex))
+		    };
 		}
 	    }
 	    tiles = newTiles;
@@ -71,8 +76,10 @@ $(document).ready(function(){
 	return game;
     }
 
+	    
+
     //create an html visualization of a gameboard
-    function createUI(container, game, width){
+    function createUI(container, game){
 	var rowIndex, colIndex, currentId, currentElement;
 	
 	container.empty();
@@ -82,7 +89,6 @@ $(document).ready(function(){
 		currentId = 'r' + rowIndex + 'c' + colIndex;
 		container.append("<div class='tile' id='" + currentId + "'></div>");
 		currentElement = $('#' + currentId);
-		currentElement.css({display: 'inline-block', width: width, height: width});
 		currentElement.click(
 		    function(row, column)
 		    {
@@ -131,12 +137,21 @@ $(document).ready(function(){
 
 
 
-    var game = game(100, 100, traditionalRule),
+    var game = game(25, 50, traditionalRule),
         board = $(".gameboard"),
         maxCols = 100,
-        width = board.innerWidth()/maxCols;
+        gameInterval;
 
-    createUI(board, game, width);
-    $('button').click(function(){ render(board, game.advanceState()) });
+    createUI(board, game);
+    $('#advance').click(function(){ render(board, game.advanceState()) });
+    $('#run').click(function() {
+	if (this.textContent === 'Pause'){
+	    clearInterval(gameInterval);
+	    this.textContent = 'Run';
+	} else {
+	    gameInterval = setInterval(function(){ render(board, game.advanceState()) }, 250);
+	    this.textContent = 'Pause';
+	}
+    });
 
 });
